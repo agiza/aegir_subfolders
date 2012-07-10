@@ -107,7 +107,7 @@ function subfolder_provision_apache_vhost_config($uri, $data=null) {
       $lines[] = 'RewriteCond %{REQUEST_FILENAME} !-d';
       $lines[] = 'RewriteCond %{REQUEST_URI} !=/favicon.ico';
       $lines[] = 'RewriteCond %{REQUEST_URI} ^/' . d()->subfolder_path;
-      $lines[] = 'RewriteRule ^ /' . d()->subfolder_path . '/index.php';
+      $lines[] = 'RewriteRule ^ /' . d()->subfolder_path . '/index.php [L]';
     
       # Write out our stub 
       $stubdir = d()->server->config_path . '/apache/stub.d/';
