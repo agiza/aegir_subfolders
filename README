@@ -1,0 +1,18 @@
+'Subfolder' support for Aegir.
+
+This is really ugly, but it works and doesn't require any use of mod_proxy that would otherwise
+double-up requests.
+
+You must give your site a ServerAlias consistent with the multisite/subfolder instructions 
+for Drupal (e.g for example.com/foobar, add an alias of example.com.foobar)
+
+The site name itself can be anything.
+
+Also depends on commenting out this line in /var/aegir/config/server_master/apache.conf:
+
+<VirtualHost *:80>
+  ServerName default
+  #  Redirect 404 /
+</VirtualHost>
+
+..unless of course you have defined a ServerName vhost for the common 'example.com' elsewhere.

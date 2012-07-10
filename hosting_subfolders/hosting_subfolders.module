@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * Add a simple form element to specify the subfolder.
+ */
+function hosting_subfolders_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'site_node_form') {
+    $node = $form['#node'];
+
+    _hosting_site_field($form, $node, 'subfolder_path', array(
+        '#type' => 'textfield',
+        '#title' => t('Subfolder path'),
+        '#required' => FALSE,
+        '#description' => t('The "subfolder" alias that will be used to view the site under a common, non-Aegir-managed URL'),
+        '#default_value' => isset($node->subfolder_path) ? $node->subfolder_path : '',
+      ));
+  }
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * Just store and load the subfolder_path field in/from the variable table.
+ */
+function hosting_subfolders_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'update':
+    case 'insert':
+      if (isset($node->subfolder_path)) {
+        variable_set('hosting_subfolders_' . $node->nid . '_path', $node->subfolder_path);
+      }
+      break;
+    case 'load':
+      $additions = array();
+
+      $path = variable_get('hosting_subfolders_' . $node->nid . '_path', NULL);
+      if (!is_null($path)) {
+        $additions['subfolder_path'] = $path;
+      }
+
+      return $additions;
+  }
+}
