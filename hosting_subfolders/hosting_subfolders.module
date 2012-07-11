@@ -8,14 +8,14 @@
 function hosting_subfolders_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'site_node_form') {
     $node = $form['#node'];
-
-    _hosting_site_field($form, $node, 'subfolder_path', array(
-        '#type' => 'textfield',
-        '#title' => t('Subfolder path'),
-        '#required' => FALSE,
-        '#description' => t('The "subfolder" alias that will be used to view the site under a common, non-Aegir-managed URL'),
-        '#default_value' => isset($node->subfolder_path) ? $node->subfolder_path : '',
-      ));
+    $form['subfolder_path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subfolder path'),
+      '#required' => FALSE,
+      '#description' => t('The "subfolder" alias that will be used to view the site under a common, non-Aegir-managed URL'),
+      '#default_value' => isset($node->subfolder_path) ? $node->subfolder_path : '',
+    );
+    return($form);
   }
 }
 
