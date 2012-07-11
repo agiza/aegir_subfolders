@@ -1,10 +1,10 @@
-'Subfolder' support for Aegir.
-------------------------------
+'Sites in subfolders' support for Aegir.
+---------------------------------------
 
 This is really ugly, but it works and doesn't require any use of mod_proxy that would otherwise double-up requests.
 
 Installation instructions
-------------------------
+-------------------------
 
 Move provision_subfolders to /var/aegir/.drush/
 
@@ -24,10 +24,10 @@ Usage instructions
 
 
 Caveats
---------
+-------
 
 Main vhost
-===========
+==========
 
 I'm presuming you've picked some 'main' URL that you want your sites to be a subfolder of, e.g 'example.com'
 
@@ -49,6 +49,7 @@ So add a vhost, or comment out the 'Redirect 404 /' here.
 
 Nginx
 =====
+
 This Aegir extension does not support Nginx at all, at this stage.
 
 
@@ -57,3 +58,24 @@ Existing platforms
 
 If you want to start using subfolders on any *existing* platforms in your Aegir system, even if you haven't created the site yet, you have to re-verify the platform first. This is
 because the platform-wide apache config needs to be modified slightly to include some stub Rewrite rules (*before* the .htaccess is read in).
+
+Renaming sites
+==============
+
+Currently there's probably no support for renaming the subfolder when you rename (migrate) a site.
+When renaming the subfolder when editing the site node, the old subfolder is kept in the stub files and would need to be removed manually.
+
+
+
+
+@TODO
+-----
+
+Add support for renaming the subfolder when a site is renamed, or get to set a new subfolder for a site that is going to be cloned
+  - Will also need to delete the old subfolder stub files when it's renamed, so have a concept of 'old' subfolder name vs 'new'.
+
+Nginx support
+
+Autocomplete the subfolder name based on the first part of the subdomain name, and autocomplete the 'example.com.prefix' Site Alias too.
+
+Investigate whether we are breaking/intefering with the Disable feature (which injects rules into the main vhost, but not our stub.. probably need our own post_disable hook)
