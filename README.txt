@@ -44,5 +44,3 @@ If you don't have a valid 'ServerName' vhost for this site on the server, then y
 So add a vhost, or comment out the 'Redirect 404 /' here.
 
 This Aegir extension does not support Nginx at all, at this stage.
-
-Also probably doesn't work Drupal 5 or 6 sites at this stge, just Drupal 7, due to RewriteRule differences.
