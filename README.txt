@@ -26,6 +26,9 @@ Usage instructions
 Caveats
 --------
 
+Main vhost
+===========
+
 I'm presuming you've picked some 'main' URL that you want your sites to be a subfolder of, e.g 'example.com'
 
 This 'example.com' must exist as a vhost on your server somewhere, e.g be a Drupal site already, or even something as small as this in your /etc/apache2/conf.d/example.com.conf:
@@ -43,4 +46,14 @@ If you don't have a valid 'ServerName' vhost for this site on the server, then y
 
 So add a vhost, or comment out the 'Redirect 404 /' here.
 
+
+Nginx
+=====
 This Aegir extension does not support Nginx at all, at this stage.
+
+
+Existing platforms
+===================
+
+If you want to start using subfolders on any *existing* platforms in your Aegir system, even if you haven't created the site yet, you have to re-verify the platform first. This is
+because the platform-wide apache config needs to be modified slightly to include some stub Rewrite rules (*before* the .htaccess is read in).
