@@ -141,7 +141,8 @@ function subfolder_provision_apache_dir_config($data = null) {
  * in the .stub file, because that .stub file gets Included within a <Directory> directive,
  * which can't contain Alias directives. 
  * I think it also needs to be included *before* the pre.d etc. Otherwise, it could go in
- * to the server-wide apache config via hook_provision_apache_server_config()
+ * to the server-wide apache config via hook_provision_apache_server_config(), but then it
+ * would only run on server verifications, not in the site scope.
  */
 function drush_subfolder_create_alias_file() {
   if (d()->type == 'site') {
