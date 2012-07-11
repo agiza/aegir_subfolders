@@ -62,10 +62,11 @@ function drush_subfolder_pre_provision_verify() {
  * hack the .htaccess directly otherwise.
  */
 function subfolder_provision_apache_dir_config($data = null) {
+  $stubdir = d()->server->config_path . '/apache/stub.d';
   $lines = array();
   $lines[] = '<IfModule mod_rewrite.c>';
   $lines[] = 'RewriteEngine On';
-  $lines[] = 'Include ' . d()->server->http_pred_path . '/*.stub';
+  $lines[] = 'Include ' . $stubdir . '/*.stub';
   $lines[] = '</IfModule>';
   return implode($lines, "\n");
 }
@@ -94,12 +95,12 @@ function subfolder_provision_apache_vhost_config($uri, $data=null) {
       file_put_contents($alias_stub, 'Alias /' . d()->subfolder_path . ' ' . d()->root);
 
       # Inject the database credentials based on Request URI, since we can't rely on the Host header
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_type=' . $data['db_type'];
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_name=' .  $data['db_name'];
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_user=' . $data['db_user'];
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_passwd=' . $data['db_passwd'];
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_host=' . $data['db_host'];
-      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . ' db_port=' . $data['db_port'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_type=' . $data['db_type'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_name=' .  $data['db_name'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_user=' . $data['db_user'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_passwd=' . $data['db_passwd'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_host=' . $data['db_host'];
+      $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_port=' . $data['db_port'];
 
       # This is the magic that makes the subfolders work, if the symlink is also present in the doc root
       # It's an override of the default .htaccess
