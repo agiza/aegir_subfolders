@@ -65,6 +65,12 @@ Renaming sites
 Currently there's probably no support for renaming the subfolder when you rename (migrate) a site.
 When renaming the subfolder when editing the site node, the old subfolder is kept in the stub files and would need to be removed manually.
 
+Cloning sites
+=============
+
+Don't use this extension with the 'Clone' feature! It currently breaks your /subfolder by changing the database credentials in the SetEnvIf parameters to that of the new site, so your
+existing site will suddenly start using the new clone's database. Haven't worked out how to fix this yet.
+
 
 
 
