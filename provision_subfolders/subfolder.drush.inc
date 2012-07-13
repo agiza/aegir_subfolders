@@ -32,7 +32,7 @@ class provisionService_subfolder extends provisionService {
 /**
  * Implementation of drush_hook_pre_provision_install()
  */
-function drush_subfolder_pre_provision_install() {
+function drush_subfolder_post_provision_install() {
   drush_subfolder_create_stub_dir();
   drush_subfolder_create_subfolder_symlink();
   drush_subfolder_create_alias_file();
@@ -42,7 +42,7 @@ function drush_subfolder_pre_provision_install() {
 /**
  * Implementation of drush_hook_pre_provision_verify()
  */
-function drush_subfolder_pre_provision_verify() {
+function drush_subfolder_post_provision_verify() {
   drush_subfolder_create_stub_dir();
   drush_subfolder_create_subfolder_symlink();
   drush_subfolder_create_alias_file();
