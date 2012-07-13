@@ -30,33 +30,35 @@ class provisionService_subfolder extends provisionService {
 }
 
 /**
- * Implementation of drush_hook_pre_provision_install()
+ * Wrapper function which is called by several drush hooks
+ *
  */
-function drush_subfolder_post_provision_install() {
+function drush_subfolder_create_all() {
   drush_subfolder_create_stub_dir();
   drush_subfolder_create_subfolder_symlink();
   drush_subfolder_create_alias_file();
   drush_subfolder_create_stub_file();
+}
+
+/**
+ * Implementation of drush_hook_pre_provision_install()
+ */
+function drush_subfolder_provision_install() {
+  drush_subfolder_create_all();
 }
 
 /**
  * Implementation of drush_hook_pre_provision_verify()
  */
-function drush_subfolder_post_provision_verify() {
-  drush_subfolder_create_stub_dir();
-  drush_subfolder_create_subfolder_symlink();
-  drush_subfolder_create_alias_file();
-  drush_subfolder_create_stub_file();
+function drush_subfolder_provision_verify() {
+  drush_subfolder_create_all();
 }
 
 /**
  * Implementation of drush_hook_post_provision_deploy()
  */
-function drush_subfolder_post_provision_deploy() {
-  drush_subfolder_create_stub_dir();
-  drush_subfolder_create_subfolder_symlink();
-  drush_subfolder_create_alias_file();
-  drush_subfolder_create_stub_file();
+function drush_subfolder_provision_deploy() {
+  drush_subfolder_create_all();
 }
 
 /**
@@ -64,6 +66,20 @@ function drush_subfolder_post_provision_deploy() {
  */
 function drush_subfolder_post_provision_migrate() {
   drush_subfolder_delete_subfolder_symlink();
+}
+
+/**
+ * Implementation of drush_hook_provision_disable()
+ */
+function drush_subfolder_provision_disable() {
+  drush_subfolder_disable_stub_file();
+}
+
+/**
+ * Implementation of drush_hook_provision_enable()
+ */
+function drush_subfolder_provision_enable() {
+  drush_subfolder_create_stub_file();
 }
 
 /**
@@ -76,13 +92,16 @@ function drush_subfolder_post_provision_delete() {
 }
 
 /**
- * Create a stub.d directory in the /var/aegir/config area
- * that is *not* pre-loaded/included by Aegir, but is included
- * by our platform's apache config at the right time
- * This would otherwise be injected directly through
- * subfolder_provision_apache_dir_config(), however we want
- * to separate per subsite, and we only want to call RewriteEngine once
- * within an <IfModule> wrapper. Why? I don't know, but it works.
+ * Create a stub.d directory in the /var/aegir/config area that is *not*
+ * pre-loaded/included in the server-wide context, but is included by
+ * our platform's Apache config at the right time.
+ *
+ * The stub content would otherwise be injected directly through
+ * subfolder_provision_apache_dir_config(), however we want to separate
+ * these per subsite for clarity, and we only want to call RewriteEngine
+ * once within an <IfModule> wrapper. Why? I don't know, but it works,
+ * and it means people can continue to make other changes to their
+ * .htaccess if necessary.
  */
 function drush_subfolder_create_stub_dir() {
   $stubdir = d()->server->config_path . '/apache/stub.d';
@@ -93,7 +112,9 @@ function drush_subfolder_create_stub_dir() {
 
 /**
  * Create the symlink necessary for multisite subfolders to work
- * Symlinks the subfolder name into the top-level of the Drupal root itself
+ *
+ * Symlinks the subfolder name into the top-level of the Drupal root
+ * itself.
  */
 function drush_subfolder_create_subfolder_symlink() {
   if (d()->type == 'site') {
@@ -107,8 +128,10 @@ function drush_subfolder_create_subfolder_symlink() {
 
 /**
  * Delete a subfolder symlink in a platform root.
+ *
  * Typically would be used for post migrations, where the old
- * platform should no longer contain the subfolder symlink
+ * platform should no longer contain the subfolder symlink, 
+ * and also when a site is deleted altogether.
  */
 function drush_subfolder_delete_subfolder_symlink() {
   if (d()->type == 'site') {
@@ -121,10 +144,12 @@ function drush_subfolder_delete_subfolder_symlink() {
 }
 
 /**
- * Inject a snippet that instructs the platform-level Apache config to include
- * our special RewriteRules per server across this platform, *before* the .htaccess
- * is included. Order seems to be important here - the only other option is to 
- * hack the .htaccess directly otherwise.
+ * Inject a snippet that instructs the platform-level Apache config to
+ * include our special RewriteRules per server across this platform,
+ * *before* the .htaccess is included.
+ *
+ * Order seems to be important here - the only other option is to hack
+ * the .htaccess directly otherwise.
  */
 function subfolder_provision_apache_dir_config($data = null) {
   $stubdir = d()->server->config_path . '/apache/stub.d';
@@ -137,12 +162,16 @@ function subfolder_provision_apache_dir_config($data = null) {
 }
 
 /**
- * Nasty: stick an Alias one-liner for this site in a server-wide config (this can't go
- * in the .stub file, because that .stub file gets Included within a <Directory> directive,
- * which can't contain Alias directives. 
- * I think it also needs to be included *before* the pre.d etc. Otherwise, it could go in
- * to the server-wide apache config via hook_provision_apache_server_config(), but then it
- * would only run on server verifications, not in the site scope.
+ * Nasty: stick an Alias one-liner for this site in a server-wide config.
+ *
+ * This can't go in the site's .stub file along with its Rewrite rules,
+ * because that .stub file gets Included within a <Directory> directive,
+ * which can't contain Alias directives.
+ *
+ * I think it also needs to be included *before* the pre.d etc. Otherwise,
+ * I would've put it in the server-wide apache config via the API using
+ * hook_provision_apache_server_config(), but that only gets called on
+ * Server verification, and we need it to happen in the site context.
  */
 function drush_subfolder_create_alias_file() {
   if (d()->type == 'site') {
@@ -168,14 +197,15 @@ function drush_subfolder_delete_alias_file() {
 }
 
 /**
- * Nasty hack that will insert our RewriteRule overrides per
- * site into a .stub file which the platform-level Apache config includes.
+ * Nasty hack that will insert our RewriteRule overrides per site into
+ * a .stub file which the platform-level Apache config includes.
  */
 function drush_subfolder_create_stub_file() {
   $lines = array();
   if (d()->type == 'site') {
     if (!empty(d()->subfolder_path)) {
-      # Inject the database credentials based on Request URI, since we can't rely on the Host header
+      # Inject the database credentials based on Request URI, since we can't rely on the Host header.
+      # The only alternative is to disable cloaking of db credentials altogether.
       $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_type=' . drush_get_option('db_type');
       $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_name=' . drush_get_option('db_name');
       $lines[] = 'SetEnvIf Request_Uri ^/'. d()->subfolder_path . '/ db_user=' . drush_get_option('db_user');
@@ -189,17 +219,38 @@ function drush_subfolder_create_stub_file() {
       $lines[] = 'RewriteCond %{REQUEST_FILENAME} !-d';
       $lines[] = 'RewriteCond %{REQUEST_URI} !=/favicon.ico';
       $lines[] = 'RewriteCond %{REQUEST_URI} ^/' . d()->subfolder_path;
+
+      # Drupal 7 has a different RewriteRule than Drupal 6 and earlier.
       if (drush_drupal_major_version() <= 6) {
         $lines[] = 'RewriteRule ^(.*)$ /' . d()->subfolder_path . '/index.php?q=$1 [L,QSA]';
       }
       else {
         $lines[] = 'RewriteRule ^ /' . d()->subfolder_path . '/index.php [L]';
       }
-    
+
       # Write out our stub 
       $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
       provision_file()->file_put_contents($stubfile, implode($lines, "\n"))
-        ->succeed('Generated config ' . $stubfile, 'success')
+        ->succeed('Generated subfolder RewriteRule stub file ' . $stubfile, 'success')
+        ->fail('Could not generate ' . $stubfile)->status();
+    }
+  }
+}
+
+/**
+ * Inject the 'disabled site' rewrite rule into our stub
+ * so the site is disabled under its 'subfolder' URL.
+ */
+function drush_subfolder_disable_stub_file() {
+  $lines = array();
+  if (d()->type == 'site') {
+    if (!empty(d()->subfolder_path)) {
+      $lines[] = 'RewriteCond %{REQUEST_URI} ^/' . d()->subfolder_path . '(.*)';
+      $lines[] = 'RewriteRule ^(.*)$ ' . d()->server->web_disable_url . '/' . d()->uri . '? [L]';
+      # Write out our stub 
+      $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
+      provision_file()->file_put_contents($stubfile, implode($lines, "\n"))
+        ->succeed('Generated subfolder RewriteRule stub file ' . $stubfile, 'success')
         ->fail('Could not generate ' . $stubfile)->status();
     }
   }
@@ -212,8 +263,7 @@ function drush_subfolder_delete_stub_file() {
   if (!empty(d()->subfolder_path)) {
     $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
     provision_file()->unlink($stubfile)
-      ->succeed('Deleted RewriteRule stub file @path.')
-      ->fail('Deleted RewriteRule stub file @path.');
+      ->succeed('Deleted subfolder RewriteRule stub file @path.')
+      ->fail('Could not delete subfolder RewriteRule stub file @path.');
   }
 }
-

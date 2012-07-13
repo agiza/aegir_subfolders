@@ -87,6 +87,4 @@ Nginx support
 
 Autocomplete the subfolder name based on the first part of the subdomain name, and autocomplete the 'example.com.prefix' Site Alias too.
 
-Investigate whether we are breaking/intefering with the Disable feature (which injects rules into the main vhost, but not our stub.. probably need our own post_disable hook)
-
 Fix the clone problem - might need a fix in Aegir itself so that contrib modules can 'hook' into setting or resetting contexts at the right time during the clone process..
