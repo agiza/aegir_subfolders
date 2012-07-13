@@ -185,11 +185,13 @@ function drush_subfolder_create_alias_file() {
  * Delete an Apache mod_alias stub file
  */
 function drush_subfolder_delete_alias_file() {
-  if (!empty(d()->subfolder_path)) {
-    $alias_file = d()->server->http_pred_path . '/000_' . d()->subfolder_path . '_alias.conf';
-    provision_file()->unlink($alias_file)
-      ->succeed('Deleted Apache alias stub file @path.')
-      ->fail('Deleted Apache alias stub file @path.');
+  if (d()->type == 'site') {
+    if (!empty(d()->subfolder_path)) {
+      $alias_file = d()->server->http_pred_path . '/000_' . d()->subfolder_path . '_alias.conf';
+      provision_file()->unlink($alias_file)
+        ->succeed('Deleted Apache alias stub file @path.')
+        ->fail('Deleted Apache alias stub file @path.');
+    }
   }
 }
 
@@ -258,10 +260,12 @@ function drush_subfolder_disable_stub_file() {
  * Delete a RewriteRule stub file
  */
 function drush_subfolder_delete_stub_file() {
-  if (!empty(d()->subfolder_path)) {
-    $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
-    provision_file()->unlink($stubfile)
-      ->succeed('Deleted subfolder RewriteRule stub file @path.')
-      ->fail('Could not delete subfolder RewriteRule stub file @path.');
+  if (d()->type == 'site') {
+    if (!empty(d()->subfolder_path)) {
+      $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
+      provision_file()->unlink($stubfile)
+        ->succeed('Deleted subfolder RewriteRule stub file @path.')
+        ->fail('Could not delete subfolder RewriteRule stub file @path.');
+    }
   }
 }
