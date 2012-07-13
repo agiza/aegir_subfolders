@@ -21,9 +21,7 @@ function subfolder_provision_services() {
 class provisionService_subfolder extends provisionService {
   public $service = 'subfolder';
 
-  /**
-   * Add the subfolder_path property to the site context.
-   */
+  # Add the subfolder_path property to the site context.
   static function subscribe_site($context) {
     $context->setProperty('subfolder_path');
   }
@@ -31,7 +29,6 @@ class provisionService_subfolder extends provisionService {
 
 /**
  * Wrapper function which is called by several drush hooks
- *
  */
 function drush_subfolder_create_all() {
   drush_subfolder_create_stub_dir();
@@ -62,7 +59,7 @@ function drush_subfolder_provision_deploy() {
 }
 
 /**
- * Delete the old site directory and recreate the settings file
+ * Implementation of drush_hook_post_provision_migrate()
  */
 function drush_subfolder_post_provision_migrate() {
   drush_subfolder_delete_subfolder_symlink();
@@ -247,6 +244,7 @@ function drush_subfolder_disable_stub_file() {
     if (!empty(d()->subfolder_path)) {
       $lines[] = 'RewriteCond %{REQUEST_URI} ^/' . d()->subfolder_path . '(.*)';
       $lines[] = 'RewriteRule ^(.*)$ ' . d()->server->web_disable_url . '/' . d()->uri . '? [L]';
+
       # Write out our stub 
       $stubfile = d()->server->config_path . '/apache/stub.d/' . d()->subfolder_path . '.stub';
       provision_file()->file_put_contents($stubfile, implode($lines, "\n"))
