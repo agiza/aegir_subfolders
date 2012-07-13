@@ -64,8 +64,10 @@ function hosting_subfolders_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
           if (!hosting_subfolders_valid_path($node->nid, $node->subfolder_path)) {
             form_set_error('subfolder_path', t('This path is in use or invalid!'));
           }
-          if (empty($node->aliases) || !preg_match("/\." . $node->subfolder_path . "/", implode("\n", (array) $node->aliases))) {
-            form_set_error('aliases', t('You can\'t set a subfolder if you haven\'t set an alias in the format "yourdomain.com.%subfolder"', array('%subfolder' => $node->subfolder_path)));
+          if (!empty($node->subfolder_path)) {
+            if (empty($node->aliases) || !preg_match("/\." . $node->subfolder_path . "/", implode("\n", (array) $node->aliases))) {
+              form_set_error('aliases', t('You can\'t set a subfolder if you haven\'t set an alias in the format "yourdomain.com.%subfolder"', array('%subfolder' => $node->subfolder_path)));
+            }
           }
         }
         break;
