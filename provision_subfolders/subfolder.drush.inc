@@ -130,8 +130,8 @@ function subfolder_provision_apache_dir_config($data = null) {
   $stubdir = d()->server->config_path . '/apache/stub.d';
   $lines = array();
   $lines[] = '<IfModule mod_rewrite.c>';
-  $lines[] = 'RewriteEngine On';
-  $lines[] = 'Include ' . $stubdir . '/*.stub';
+  $lines[] = '  RewriteEngine On';
+  $lines[] = '  Include ' . $stubdir . '/*.stub';
   $lines[] = '</IfModule>';
   return implode($lines, "\n");
 }
