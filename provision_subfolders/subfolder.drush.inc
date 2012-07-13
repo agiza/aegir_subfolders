@@ -80,9 +80,9 @@ function drush_subfolder_provision_enable() {
 }
 
 /**
- * Implementation of drush_hook_post_provision_delete()
+ * Implementation of drush_hook_provision_delete()
  */
-function drush_subfolder_post_provision_delete() {
+function drush_subfolder_provision_delete() {
   drush_subfolder_delete_subfolder_symlink();
   drush_subfolder_delete_alias_file();
   drush_subfolder_delete_stub_file();
